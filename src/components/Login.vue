@@ -1,5 +1,6 @@
 <template>
   <div>
+    <div id="fb-root"></div>
     <div class="img-header">
       <img src="../assets/img/notes.svg">
     </div>
@@ -23,7 +24,7 @@
               <el-col :span="12">
                 <el-form-item class="align-left">
                   社群登入：
-                  <svg class="icon" aria-hidden="true">
+                  <svg class="icon" aria-hidden="true" @click="FBLogin">
                     <use xlink:href="#icon-Facebook"></use>
                   </svg>
                   <svg class="icon" aria-hidden="true">
@@ -64,8 +65,28 @@
           password: [
             { required: true, message: '請輸入密碼', trigger: 'blur' }
           ]
-        }
+        },
+        FBProfile : {},
+        authorized: false
       }
+    },
+    mounted () {
+      window.fbAsyncInit = function() {
+        // eslint-disable-next-line
+        FB.init({
+          appId: "340815636586253",
+          cookie: true,
+          xfbml: true,
+          version: "v3.3"
+        });
+
+        // eslint-disable-next-line
+        FB.AppEvents.logPageView();
+        // eslint-disable-next-line
+        FB.getLoginStatus(response => {
+          console.log("res", response); // 這裡可以得到 fb 回傳的結果
+        });
+      };
     },
     methods: {
       onSubmit(formName) {
@@ -78,6 +99,32 @@
             return false;
           }
         })
+      },
+      getFBProfile () {
+        FB.api('/me?fields=name,id,email', function (response) {
+          console.log('res in graphAPI', response)
+        })
+      },
+      FBLogin () {
+        let vm = this
+        FB.login(function (response) {
+          vm.getFBProfile()
+          console.log('res', response)
+        }, {
+          scope: 'email, public_profile',
+          return_scopes: true
+        })
+      },
+      statusChangeCallback (response) {
+        let vm = this
+        if (response.status === 'connected') {
+          vm.authorized = true
+          vm.getFBProfile()
+        } else if (response.status === 'not_authorized') {
+          vm.authorized = false
+        } else {
+          vm.authorized = false
+        }
       }
     }
   }
