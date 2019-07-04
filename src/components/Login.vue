@@ -46,6 +46,14 @@
 </template>
 
 <script>
+  import * as fb from '../modules/helpers/fb';
+
+  const fbOptions = {
+    appId: "340815636586253",
+    cookie: true,
+    xfbml: true,
+    version: "v3.3"
+  }
   export default {
     name: 'Login',
     data() {
@@ -71,24 +79,17 @@
       }
     },
     mounted () {
-      window.fbAsyncInit = function() {
-        // eslint-disable-next-line
-        FB.init({
-          appId: "340815636586253",
-          cookie: true,
-          xfbml: true,
-          version: "v3.3"
-        });
-
-        // eslint-disable-next-line
-        FB.AppEvents.logPageView();
-        // eslint-disable-next-line
-        FB.getLoginStatus(response => {
-          console.log("res", response); // 這裡可以得到 fb 回傳的結果
-        });
-      };
+      this.initFbSdk()
     },
     methods: {
+      async initFbSdk () {
+        const FB = await fb.getFbSdk(fbOptions)
+
+        FB.AppEvents.logPageView()
+        FB.getLoginStatus(response => {
+          console.log("res", response); // 這裡可以得到 fb 回傳的結果
+        })
+      }, 
       onSubmit(formName) {
         this.$refs[formName].validate((valid) => {
           if(valid && this.form.username == this.data.username && this.form.password == this.data.password) {
@@ -100,13 +101,17 @@
           }
         })
       },
-      getFBProfile () {
+      async getFBProfile () {
+        const FB = await fb.getFbSdk(fbOptions);
+
         FB.api('/me?fields=name,id,email', function (response) {
           console.log('res in graphAPI', response)
         })
       },
-      FBLogin () {
-        let vm = this
+      async FBLogin () {
+        const FB = await fb.getFbSdk(fbOptions);
+        const vm = this;
+
         FB.login(function (response) {
           vm.getFBProfile()
           console.log('res', response)
