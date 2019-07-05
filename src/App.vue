@@ -7,32 +7,39 @@
 </template>
 
 <script>
+import * as fb from './modules/helpers/fb';
+
+const fbOptions = {
+  appId: "340815636586253",
+  cookie: true,
+  xfbml: true,
+  version: "v3.3"
+}
+
 export default {
   name: 'app',
-  created: function(){
+  mounted () {
     let auth = false;
     if(!auth) {
-      this.$router.push('/login');
+      // this.$router.push('/login');
     }
+    this.initFbSdk()
   },
-  mounted () {
-    window.fbAsyncInit = function() {
-      // eslint-disable-next-line
-      FB.init({
-        appId: "340815636586253",
-        cookie: true,
-        xfbml: true,
-        version: "v3.3"
-      });
-
-      // eslint-disable-next-line
-      FB.AppEvents.logPageView();
-      // eslint-disable-next-line
+  methods: {
+    async initFbSdk () {
+      const FB = await fb.getFbSdk(fbOptions)
+      FB.AppEvents.logPageView()
       FB.getLoginStatus(response => {
-        console.log("res", response); // 這裡可以得到 fb 回傳的結果
-      });
-    };
-  },
+        console.log("res", response);
+        if (response.status === 'connected') {
+          console.log('已登入')
+          // this.$router.push('/home');
+        } else {
+          // this.$router.push('/login');
+        }
+      })
+    }, 
+  }
 }
 </script>
 

@@ -74,7 +74,7 @@
             { required: true, message: '請輸入密碼', trigger: 'blur' }
           ]
         },
-        FBProfile : {},
+        profile: {},
         authorized: false
       }
     },
@@ -84,10 +84,10 @@
     methods: {
       async initFbSdk () {
         const FB = await fb.getFbSdk(fbOptions)
-
         FB.AppEvents.logPageView()
         FB.getLoginStatus(response => {
-          console.log("res", response); // 這裡可以得到 fb 回傳的結果
+          console.log("res", response);
+          this.statusChangeCallback(response)
         })
       }, 
       onSubmit(formName) {
@@ -102,7 +102,6 @@
       },
       async getFBProfile () {
         const FB = await fb.getFbSdk(fbOptions);
-
         FB.api('/me?fields=name,id,email', function (response) {
           console.log('res in graphAPI', response)
         })
@@ -110,10 +109,12 @@
       async FBLogin () {
         const FB = await fb.getFbSdk(fbOptions);
         const vm = this;
-
         FB.login(function (response) {
           vm.getFBProfile()
-          console.log('res', response)
+          if (response.status === 'connected') {
+            vm.$router.push('/home');
+          }
+          vm.statusChangeCallback(response) 
         }, {
           scope: 'email, public_profile',
           return_scopes: true
@@ -122,8 +123,9 @@
       statusChangeCallback (response) {
         let vm = this
         if (response.status === 'connected') {
+          console.log()
           vm.authorized = true
-          vm.getFBProfile()
+          vm.getProfile()
         } else if (response.status === 'not_authorized') {
           vm.authorized = false
         } else {

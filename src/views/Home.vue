@@ -1,6 +1,7 @@
 <template>
   <div>
-  <router-view></router-view>
+    <p>你好我是首頁</p>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -10,8 +11,5 @@
 
 export default {
   name: 'home',
-  // components: {
-  //   Login
-  // }
 }
 </script>
