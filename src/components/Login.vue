@@ -46,6 +46,14 @@
 </template>
 
 <script>
+  import * as fb from '../modules/helpers/fb';
+
+  const fbOptions = {
+    appId: "340815636586253",
+    cookie: true,
+    xfbml: true,
+    version: "v3.3"
+  }
   export default {
     name: 'Login',
     data() {
@@ -70,7 +78,18 @@
         authorized: false
       }
     },
+    mounted () {
+      this.initFbSdk()
+    },
     methods: {
+      async initFbSdk () {
+        const FB = await fb.getFbSdk(fbOptions)
+
+        FB.AppEvents.logPageView()
+        FB.getLoginStatus(response => {
+          console.log("res", response); // 這裡可以得到 fb 回傳的結果
+        })
+      }, 
       onSubmit(formName) {
         this.$refs[formName].validate((valid) => {
           if(valid && this.form.username == this.data.username && this.form.password == this.data.password) {
@@ -81,15 +100,17 @@
           }
         })
       },
-      getFBProfile () {
-        // eslint-disable-next-line
+      async getFBProfile () {
+        const FB = await fb.getFbSdk(fbOptions);
+
         FB.api('/me?fields=name,id,email', function (response) {
           console.log('res in graphAPI', response)
         })
       },
-      FBLogin () {
-        let vm = this
-        // eslint-disable-next-line
+      async FBLogin () {
+        const FB = await fb.getFbSdk(fbOptions);
+        const vm = this;
+
         FB.login(function (response) {
           vm.getFBProfile()
           console.log('res', response)
