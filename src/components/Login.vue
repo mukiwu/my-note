@@ -70,30 +70,11 @@
         authorized: false
       }
     },
-    mounted () {
-      window.fbAsyncInit = function() {
-        // eslint-disable-next-line
-        FB.init({
-          appId: "340815636586253",
-          cookie: true,
-          xfbml: true,
-          version: "v3.3"
-        });
-
-        // eslint-disable-next-line
-        FB.AppEvents.logPageView();
-        // eslint-disable-next-line
-        FB.getLoginStatus(response => {
-          console.log("res", response); // 這裡可以得到 fb 回傳的結果
-        });
-      };
-    },
     methods: {
       onSubmit(formName) {
         this.$refs[formName].validate((valid) => {
           if(valid && this.form.username == this.data.username && this.form.password == this.data.password) {
             console.log('submit success')
-            //
           } else {
             this.$message.error('帳號密碼錯誤');
             return false;
@@ -101,12 +82,14 @@
         })
       },
       getFBProfile () {
+        // eslint-disable-next-line
         FB.api('/me?fields=name,id,email', function (response) {
           console.log('res in graphAPI', response)
         })
       },
       FBLogin () {
         let vm = this
+        // eslint-disable-next-line
         FB.login(function (response) {
           vm.getFBProfile()
           console.log('res', response)
